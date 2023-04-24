@@ -33,15 +33,17 @@ void camera_init(void) {
             .pin_href   = HREF_GPIO_NUM,
             .pin_pclk   = PCLK_GPIO_NUM,
 
-            .xclk_freq_hz   = 16500000,
+            .xclk_freq_hz = 20000000,
             .ledc_timer     = LEDC_TIMER_0,
             .ledc_channel   = LEDC_CHANNEL_0,
 
             .pixel_format   = PIXFORMAT_JPEG,
-            .frame_size     = FRAMESIZE_XGA,
+            .frame_size     = FRAMESIZE_VGA,
             .jpeg_quality   = 10,
             .fb_count       = 2,
+            .fb_location    = CAMERA_FB_IN_DRAM, /*!< The location where the frame buffer will be allocated */
             .grab_mode      = CAMERA_GRAB_LATEST,
+
     };
 
     ESP_ERROR_CHECK(esp_camera_init(&cfg));
@@ -57,22 +59,27 @@ static esp_err_t still_get_handler(httpd_req_t *req) {
         ESP_LOGE(TAG, "Failed to get capture frame buffer");
         res = ESP_FAIL;
     }
-
+    ESP_LOGI(TAG, "Captured frame buffer");
     if (fb -> format != PIXFORMAT_JPEG) {
         ESP_LOGE(TAG, "Incompatible capture format");
         res = ESP_FAIL;
     }
+    ESP_LOGI(TAG, "Have JPEG format");
 
     if (res == ESP_OK)
         res = httpd_resp_set_type(req, "image/jpeg");
 
+    ESP_LOGI(TAG, "Set content type image/jpeg");
     if (res == ESP_OK)
         res = httpd_resp_set_hdr(req, "Content-Disposition", 
                                     "inline; filename=capture.jpg");
 
+    ESP_LOGI(TAG, "Set Content-Disposition");
     if (res == ESP_OK) 
         res = httpd_resp_send(req, (const char*) fb -> buf, fb -> len);
 
+    ESP_LOGI(TAG, "Sent data");
+    
     if (res != ESP_OK) {
         ESP_LOGE(TAG, "Failed sending capture");
         httpd_resp_send_500(req);
