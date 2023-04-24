@@ -11,7 +11,7 @@ Main source also claims support for Over the Air Updates (OTA) so it can be upda
 * Run `idf.py flash monitor` to flash and monitor it subsequently
 * Observe the log files to find out which IP address has been assigned to your board
 
-* Start capturing at `http://<ip>/capture.jpg` or look at the live stream `http://<ip>/capture.jpg`
+* Start capturing at `http://<ip>/capture.jpg` or look at the live stream at `http://<ip>/`
 
 Note that this is not thread safe or multi-user ready , watching a stream will break the capture and vice versa.
 
@@ -21,7 +21,7 @@ Note that this is not thread safe or multi-user ready , watching a stream will b
 
 # Example use case
 
-* Invoke `curl http://<ip>/capture.jpg --output capture.jpg` to grab a still and save it to a file on your computer.
+* Invoke `curl http://<ip>/capture.jpg --output capture.jpg` to grab a still image and save on your computer.
 * Invoke `tesseract capture.jpg` to extract text from the captured still image (assuming you have successfully installed tesseract as an OCR tool on your computer.
 
 *Code in this repository is in the Public Domain (or CC0 licensed, at your option.)
