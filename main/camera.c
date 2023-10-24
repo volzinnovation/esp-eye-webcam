@@ -6,6 +6,29 @@
 #include "esp_log.h"
 #include "sensor.h"
 
+#include <rom/ets_sys.h>
+
+// LED related
+
+#include "driver/gpio.h" // RV
+#define LINK_LED 22 // RV
+
+
+void white_LED_On(void)
+{
+    gpio_reset_pin(LINK_LED);
+    gpio_set_direction(LINK_LED, GPIO_MODE_OUTPUT);
+    gpio_set_level(LINK_LED, 1);
+}
+
+void white_LED_Off(void)
+{
+    gpio_reset_pin(LINK_LED);
+    gpio_set_direction(LINK_LED, GPIO_MODE_OUTPUT);
+    gpio_set_level(LINK_LED, 0);
+}
+
+
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
@@ -51,9 +74,13 @@ void camera_init(void) {
 }
 
 static esp_err_t still_get_handler(httpd_req_t *req) {
+
+    white_LED_On();
     camera_fb_t *fb = NULL;
     esp_err_t res = ESP_OK;
-
+    // sleep
+    ets_delay_us(200000);
+    // capture
     fb = esp_camera_fb_get();
     if (!fb) {
         ESP_LOGE(TAG, "Failed to get capture frame buffer");
@@ -86,6 +113,8 @@ static esp_err_t still_get_handler(httpd_req_t *req) {
     }
 
     esp_camera_fb_return(fb);
+
+    // white_LED_Off();
     return res;
 }
 
@@ -93,6 +122,7 @@ static esp_err_t stream_get_handler(httpd_req_t *req) {
     camera_fb_t *fb = NULL;
     char part_buf[64];
     esp_err_t res = ESP_OK;
+    
 
     if (httpd_resp_set_type(req, _STREAM_CONTENT_TYPE)) {
         ESP_LOGE(TAG, "Failed to set stream content type");
